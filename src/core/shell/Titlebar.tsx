@@ -8,7 +8,7 @@ function Titlebar() {
         data-tauri-drag-region
         className="text-xs font-medium text-text-muted"
       >
-        Quartermaster v0.1.4
+        Quartermaster v0.1.5
       </span>
 
       <span className="text-xs text-text-muted">TE — Testing</span>

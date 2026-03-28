@@ -4,7 +4,7 @@ import { useTheme } from "../theme/ThemeProvider";
 import { moduleRegistry } from "../plugins/registry";
 import { showToast } from "@/shared/ui/Toast";
 
-const APP_VERSION = "0.1.4";
+const APP_VERSION = "0.1.5";
 
 function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
@@ -15,7 +15,7 @@ function SettingsPage() {
   const [updateStatus, setUpdateStatus] = useState<"idle" | "checking" | "downloading" | "up-to-date">("idle");
 
   const checkForUpdates = async () => {
-    if (!("__TAURI__" in window)) {
+    if (!("__TAURI_INTERNALS__" in window)) {
       showToast("Update check only works in the desktop app", "warning");
       return;
     }

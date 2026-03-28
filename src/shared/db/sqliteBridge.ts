@@ -8,7 +8,7 @@
 
 /** Check if we're running inside Tauri (native app) vs plain browser */
 function isTauri(): boolean {
-  return typeof window !== "undefined" && "__TAURI__" in window;
+  return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
 interface SqliteDB {

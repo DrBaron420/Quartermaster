@@ -9,7 +9,7 @@ import { showToast } from "../ui/Toast";
 export function useUpdater() {
   useEffect(() => {
     // Skip in browser dev mode
-    if (!("__TAURI__" in window)) {
+    if (!("__TAURI_INTERNALS__" in window)) {
       console.log("[Updater] Not in Tauri, skipping update check");
       return;
     }
