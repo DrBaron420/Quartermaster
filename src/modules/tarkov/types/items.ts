@@ -1,8 +1,12 @@
+import type { Currency } from "../utils/currency";
+
 /** Price entry from a vendor (trader or flea market) */
 export interface ItemPrice {
   price: number;
-  currency: string;
+  priceRUB: number;
+  currency: Currency;
   vendor: string;
+  minTraderLevel: number | null;
 }
 
 /** A Tarkov item as stored locally */

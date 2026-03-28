@@ -18,8 +18,8 @@ export interface GameModule {
   /** Semver version string */
   version: string;
 
-  /** Emoji or icon string for the sidebar (will be a component later) */
-  icon: string;
+  /** Icon for the sidebar — emoji string or image URL */
+  icon: string | { src: string; alt: string };
 
   /** Optional layout wrapper with <Outlet /> for sub-navigation */
   layout?: React.ReactNode;

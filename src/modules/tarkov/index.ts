@@ -10,12 +10,14 @@ import TarkovLayout from "./components/TarkovLayout";
 import TarkovDashboard from "./TarkovDashboard";
 import ItemsPage from "./pages/ItemsPage";
 import AmmoPage from "./pages/AmmoPage";
+import TasksPage from "./pages/TasksPage";
+import HideoutPage from "./pages/HideoutPage";
 
 const tarkovModule: GameModule = {
   id: "tarkov",
   name: "Escape from Tarkov",
-  version: "0.1.0",
-  icon: "🎯",
+  version: "0.2.0",
+  icon: { src: "/icons/tarkov.svg", alt: "Tarkov" },
 
   layout: createElement(TarkovLayout),
 
@@ -35,6 +37,16 @@ const tarkovModule: GameModule = {
       label: "Ammo",
       element: createElement(AmmoPage),
     },
+    {
+      path: "tasks",
+      label: "Tasks",
+      element: createElement(TasksPage),
+    },
+    {
+      path: "hideout",
+      label: "Hideout",
+      element: createElement(HideoutPage),
+    },
   ],
 
   onEnable: async () => {
@@ -43,7 +55,6 @@ const tarkovModule: GameModule = {
     await hydrateTarkovFromSqlite();
     syncManager.registerHandler("tarkov", syncTarkovData);
 
-    // Trigger an immediate sync if online
     if (navigator.onLine) {
       syncManager.sync();
     }

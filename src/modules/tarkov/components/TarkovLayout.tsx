@@ -4,6 +4,8 @@ const tabs = [
   { path: "", label: "Dashboard", end: true },
   { path: "items", label: "Items" },
   { path: "ammo", label: "Ammo" },
+  { path: "tasks", label: "Tasks" },
+  { path: "hideout", label: "Hideout" },
 ];
 
 function TarkovLayout() {

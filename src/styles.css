@@ -1,12 +1,11 @@
 @import "tailwindcss";
 
 /* ============================================
-   Quartermaster Design Tokens
-   Dark theme by default, light theme via [data-theme="light"]
+   Quartermaster Design System
+   Clean gaming aesthetic — deep purples, electric blues
    ============================================ */
 
 @theme {
-  /* These get overridden by CSS custom properties below */
   --color-bg-primary: var(--qm-bg-primary);
   --color-bg-secondary: var(--qm-bg-secondary);
   --color-bg-tertiary: var(--qm-bg-tertiary);
@@ -16,14 +15,15 @@
   --color-text-secondary: var(--qm-text-secondary);
   --color-text-muted: var(--qm-text-muted);
 
-  --color-accent: #3b82f6;
-  --color-accent-hover: #2563eb;
+  --color-accent: var(--qm-accent);
+  --color-accent-hover: var(--qm-accent-hover);
   --color-accent-soft: var(--qm-accent-soft);
+  --color-accent-glow: var(--qm-accent-glow);
 
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  --color-info: #06b6d4;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-error: #f87171;
+  --color-info: #38bdf8;
 
   --color-border: var(--qm-border);
   --color-border-hover: var(--qm-border-hover);
@@ -32,62 +32,76 @@
   --color-sidebar-hover: var(--qm-sidebar-hover);
   --color-sidebar-active: var(--qm-sidebar-active);
 
-  /* Spacing */
-  --spacing-sidebar-width: 16rem;
+  --color-titlebar-bg: var(--qm-titlebar-bg);
+  --color-win-btn-hover: var(--qm-win-btn-hover);
+  --color-win-btn-close: #e81123;
 
-  /* Radius */
+  --spacing-sidebar-width: 15rem;
+
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
 }
 
 /* ============================================
-   Dark theme (default)
+   Dark theme (default) — deep space purple
    ============================================ */
 
 :root,
 [data-theme="dark"] {
-  --qm-bg-primary: #0f172a;
-  --qm-bg-secondary: #1e293b;
-  --qm-bg-tertiary: #334155;
-  --qm-bg-hover: #475569;
+  --qm-bg-primary: #0d0f1a;
+  --qm-bg-secondary: #151827;
+  --qm-bg-tertiary: #1f2337;
+  --qm-bg-hover: #2a2e45;
 
-  --qm-text-primary: #e2e8f0;
-  --qm-text-secondary: #94a3b8;
-  --qm-text-muted: #64748b;
+  --qm-text-primary: #e8eaed;
+  --qm-text-secondary: #9ba1b0;
+  --qm-text-muted: #5c6378;
 
-  --qm-accent-soft: #1e3a5f;
+  --qm-accent: #7c5bf5;
+  --qm-accent-hover: #6a4de0;
+  --qm-accent-soft: #7c5bf515;
+  --qm-accent-glow: #7c5bf540;
 
-  --qm-border: #334155;
-  --qm-border-hover: #475569;
+  --qm-border: #1f2337;
+  --qm-border-hover: #2a2e45;
 
-  --qm-sidebar-bg: #0c1322;
-  --qm-sidebar-hover: #1e293b;
-  --qm-sidebar-active: #1e3a5f;
+  --qm-sidebar-bg: #0a0c15;
+  --qm-sidebar-hover: #151827;
+  --qm-sidebar-active: #7c5bf520;
+
+  --qm-titlebar-bg: #0a0c15;
+  --qm-win-btn-hover: #1f2337;
 }
 
 /* ============================================
-   Light theme — warm gray, easy on the eyes
+   Light theme — cool gray with purple accent
    ============================================ */
 
 [data-theme="light"] {
-  --qm-bg-primary: #f1f5f9;
-  --qm-bg-secondary: #e2e8f0;
-  --qm-bg-tertiary: #cbd5e1;
-  --qm-bg-hover: #94a3b8;
+  --qm-bg-primary: #f0f1f5;
+  --qm-bg-secondary: #e3e5eb;
+  --qm-bg-tertiary: #d1d4dc;
+  --qm-bg-hover: #b8bcc8;
 
-  --qm-text-primary: #1e293b;
-  --qm-text-secondary: #475569;
-  --qm-text-muted: #64748b;
+  --qm-text-primary: #1a1c2a;
+  --qm-text-secondary: #4a4d5e;
+  --qm-text-muted: #6b6f82;
 
-  --qm-accent-soft: #dbeafe;
+  --qm-accent: #7c5bf5;
+  --qm-accent-hover: #6a4de0;
+  --qm-accent-soft: #7c5bf515;
+  --qm-accent-glow: #7c5bf520;
 
-  --qm-border: #cbd5e1;
-  --qm-border-hover: #94a3b8;
+  --qm-border: #d1d4dc;
+  --qm-border-hover: #b8bcc8;
 
-  --qm-sidebar-bg: #e2e8f0;
-  --qm-sidebar-hover: #cbd5e1;
-  --qm-sidebar-active: #bfdbfe;
+  --qm-sidebar-bg: #e3e5eb;
+  --qm-sidebar-hover: #d1d4dc;
+  --qm-sidebar-active: #7c5bf520;
+
+  --qm-titlebar-bg: #e3e5eb;
+  --qm-win-btn-hover: #d1d4dc;
 }
 
 /* ============================================
@@ -116,18 +130,33 @@ body {
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--qm-bg-primary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--qm-bg-tertiary);
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--qm-bg-hover);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--qm-accent);
+  outline-offset: 2px;
+}
+
+/* Select dropdown styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235c6378' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
 }

@@ -1,39 +1,62 @@
 import { useState, useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { tarkovDb } from "../data/tarkovDb";
+import { useTarkovStore } from "../stores/tarkovStore";
 import SearchInput from "@/shared/ui/SearchInput";
-import SortableTable, { type Column } from "@/shared/ui/SortableTable";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import type { TarkovAmmo } from "../types/ammo";
 
-/** Clean up caliber strings from API (e.g. "Caliber556x45NATO" → "5.56x45mm") */
+/** Clean up caliber strings from API */
 function formatCaliber(raw: string): string {
   return raw
     .replace("Caliber", "")
     .replace("NATO", "")
-    .replace("x", "x")
     .replace(/([0-9])([A-Z])/g, "$1 $2");
 }
 
-/** Color code penetration power */
-function penColor(pen: number): string {
-  if (pen >= 50) return "text-error";
-  if (pen >= 35) return "text-warning";
-  if (pen >= 20) return "text-info";
-  return "text-success";
+/** Bar color based on value relative to max */
+function statColor(value: number, max: number): string {
+  const ratio = value / max;
+  if (ratio >= 0.75) return "bg-error";
+  if (ratio >= 0.5) return "bg-warning";
+  if (ratio >= 0.25) return "bg-info";
+  return "bg-success";
 }
 
-/** Color code damage */
-function dmgColor(dmg: number): string {
-  if (dmg >= 80) return "text-error";
-  if (dmg >= 50) return "text-warning";
-  return "text-text-primary";
+function StatBar({
+  value,
+  max,
+  label,
+}: {
+  value: number;
+  max: number;
+  label: string;
+}) {
+  const pct = Math.min((value / max) * 100, 100);
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-text-muted w-12 text-right shrink-0">{label}</span>
+      <div className="flex-1 h-4 rounded bg-bg-tertiary overflow-hidden">
+        <div
+          className={`h-full rounded ${statColor(value, max)} transition-all`}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <span className="text-xs font-mono text-text-primary w-8 shrink-0">{value}</span>
+    </div>
+  );
 }
+
+type ViewMode = "grouped" | "table";
 
 function AmmoPage() {
   const [search, setSearch] = useState("");
   const [caliberFilter, setCaliberFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("grouped");
+  const [sortBy, setSortBy] = useState<"pen" | "dmg" | "name">("pen");
 
+  const togglePinAmmo = useTarkovStore((s) => s.togglePinAmmo);
+  const pinnedAmmoIds = useTarkovStore((s) => s.pinnedAmmo);
   const queryResult = useLiveQuery(() => tarkovDb.ammo.toArray());
   const isLoading = queryResult === undefined;
   const allAmmo = queryResult ?? [];
@@ -65,99 +88,35 @@ function AmmoPage() {
     return result;
   }, [allAmmo, search, caliberFilter]);
 
-  const columns: Column<TarkovAmmo>[] = [
-    {
-      key: "icon",
-      label: "",
-      width: "40px",
-      render: (row) => (
-        <img
-          src={row.iconLink}
-          alt={row.shortName}
-          className="h-8 w-8 object-contain rounded bg-bg-tertiary p-0.5"
-          loading="lazy"
-        />
-      ),
-    },
-    {
-      key: "name",
-      label: "Name",
-      sortable: true,
-      render: (row) => (
-        <div>
-          <p className="font-medium">{row.shortName}</p>
-          <p className="text-xs text-text-muted">{formatCaliber(row.caliber)}</p>
-        </div>
-      ),
-      sortValue: (row) => row.shortName,
-    },
-    {
-      key: "damage",
-      label: "Damage",
-      sortable: true,
-      width: "80px",
-      render: (row) => (
-        <span className={`font-mono font-medium ${dmgColor(row.damage)}`}>
-          {row.damage}
-        </span>
-      ),
-      sortValue: (row) => row.damage,
-    },
-    {
-      key: "penetration",
-      label: "Pen",
-      sortable: true,
-      width: "70px",
-      render: (row) => (
-        <span className={`font-mono font-medium ${penColor(row.penetrationPower)}`}>
-          {row.penetrationPower}
-        </span>
-      ),
-      sortValue: (row) => row.penetrationPower,
-    },
-    {
-      key: "armorDamage",
-      label: "Armor Dmg",
-      sortable: true,
-      width: "90px",
-      render: (row) => (
-        <span className="font-mono">{row.armorDamage}</span>
-      ),
-      sortValue: (row) => row.armorDamage,
-    },
-    {
-      key: "fragChance",
-      label: "Frag %",
-      sortable: true,
-      width: "80px",
-      render: (row) => (
-        <span className="font-mono">
-          {(row.fragmentationChance * 100).toFixed(0)}%
-        </span>
-      ),
-      sortValue: (row) => row.fragmentationChance,
-    },
-    {
-      key: "speed",
-      label: "Speed",
-      sortable: true,
-      width: "80px",
-      render: (row) => (
-        <span className="font-mono text-text-secondary">{row.initialSpeed}</span>
-      ),
-      sortValue: (row) => row.initialSpeed,
-    },
-    {
-      key: "tracer",
-      label: "Tracer",
-      width: "60px",
-      render: (row) => (
-        <span className={row.tracer ? "text-warning" : "text-text-muted"}>
-          {row.tracer ? "Yes" : "—"}
-        </span>
-      ),
-    },
-  ];
+  // Group by caliber
+  const grouped = useMemo(() => {
+    const groups: Record<string, TarkovAmmo[]> = {};
+    filtered.forEach((a) => {
+      if (!groups[a.caliber]) groups[a.caliber] = [];
+      groups[a.caliber].push(a);
+    });
+
+    // Sort within each group
+    for (const cal of Object.keys(groups)) {
+      groups[cal].sort((a, b) => {
+        if (sortBy === "pen") return b.penetrationPower - a.penetrationPower;
+        if (sortBy === "dmg") return b.damage - a.damage;
+        return a.shortName.localeCompare(b.shortName);
+      });
+    }
+
+    return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [filtered, sortBy]);
+
+  // Max values for bar scaling
+  const maxPen = useMemo(
+    () => Math.max(...allAmmo.map((a) => a.penetrationPower), 1),
+    [allAmmo]
+  );
+  const maxDmg = useMemo(
+    () => Math.max(...allAmmo.map((a) => a.damage), 1),
+    [allAmmo]
+  );
 
   if (isLoading) {
     return (
@@ -178,9 +137,9 @@ function AmmoPage() {
         {search || caliberFilter !== "all" ? " (filtered)" : ""}
       </p>
 
-      {/* Filters */}
-      <div className="flex gap-3 mb-4 max-w-2xl">
-        <div className="flex-1">
+      {/* Controls */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <div className="flex-1 min-w-[200px] max-w-sm">
           <SearchInput
             value={search}
             onChange={setSearch}
@@ -200,18 +159,157 @@ function AmmoPage() {
             </option>
           ))}
         </select>
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+          className="rounded-lg bg-bg-secondary border border-border px-3 py-2
+                     text-sm text-text-primary focus:outline-none focus:border-accent"
+        >
+          <option value="pen">Sort: Penetration</option>
+          <option value="dmg">Sort: Damage</option>
+          <option value="name">Sort: Name</option>
+        </select>
+        <div className="flex rounded-lg border border-border overflow-hidden">
+          <button
+            onClick={() => setViewMode("grouped")}
+            className={`px-3 py-2 text-sm transition-colors ${
+              viewMode === "grouped"
+                ? "bg-accent text-white"
+                : "bg-bg-secondary text-text-secondary hover:bg-bg-tertiary"
+            }`}
+          >
+            Cards
+          </button>
+          <button
+            onClick={() => setViewMode("table")}
+            className={`px-3 py-2 text-sm transition-colors ${
+              viewMode === "table"
+                ? "bg-accent text-white"
+                : "bg-bg-secondary text-text-secondary hover:bg-bg-tertiary"
+            }`}
+          >
+            Table
+          </button>
+        </div>
       </div>
 
-      <SortableTable
-        data={filtered}
-        columns={columns}
-        rowKey={(row) => row.id}
-        emptyMessage={
-          allAmmo.length === 0
+      {filtered.length === 0 ? (
+        <div className="rounded-lg bg-bg-secondary border border-border p-8 text-center text-sm text-text-muted">
+          {allAmmo.length === 0
             ? "No ammo cached yet. Enable the module and wait for sync."
-            : "No ammo matches your search."
-        }
-      />
+            : "No ammo matches your search."}
+        </div>
+      ) : viewMode === "grouped" ? (
+        /* ── Grouped card view ── */
+        <div className="space-y-8">
+          {grouped.map(([caliber, rounds]) => (
+            <div key={caliber}>
+              <h2 className="text-lg font-semibold text-text-primary mb-3 flex items-center gap-2">
+                <span className="h-1 w-4 rounded bg-accent" />
+                {formatCaliber(caliber)}
+                <span className="text-sm font-normal text-text-muted">
+                  ({rounds.length})
+                </span>
+              </h2>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {rounds.map((round) => (
+                  <div
+                    key={round.id}
+                    className="rounded-lg bg-bg-secondary border border-border p-3 space-y-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={round.iconLink}
+                        alt={round.shortName}
+                        className="h-8 w-8 object-contain rounded bg-bg-tertiary p-0.5"
+                        loading="lazy"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-text-primary truncate">
+                          {round.shortName}
+                        </p>
+                        <div className="flex gap-2 text-xs text-text-muted">
+                          {round.tracer && (
+                            <span className="text-warning">Tracer</span>
+                          )}
+                          <span>{round.initialSpeed} m/s</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => togglePinAmmo(round.id)}
+                        className={`text-sm transition-colors ${
+                          pinnedAmmoIds.includes(round.id)
+                            ? "text-warning"
+                            : "text-text-muted hover:text-warning"
+                        }`}
+                        title={pinnedAmmoIds.includes(round.id) ? "Unpin" : "Pin to dashboard"}
+                      >
+                        {pinnedAmmoIds.includes(round.id) ? "★" : "☆"}
+                      </button>
+                    </div>
+                    <StatBar value={round.penetrationPower} max={maxPen} label="PEN" />
+                    <StatBar value={round.damage} max={maxDmg} label="DMG" />
+                    <div className="flex justify-between text-xs text-text-muted pt-1">
+                      <span>Armor: {round.armorDamage}</span>
+                      <span>Frag: {(round.fragmentationChance * 100).toFixed(0)}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        /* ── Table view ── */
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-bg-secondary border-b border-border">
+                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Ammo</th>
+                <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-text-muted">Caliber</th>
+                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-primary" onClick={() => setSortBy("dmg")}>
+                  DMG {sortBy === "dmg" && "↓"}
+                </th>
+                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-text-muted cursor-pointer hover:text-text-primary" onClick={() => setSortBy("pen")}>
+                  PEN {sortBy === "pen" && "↓"}
+                </th>
+                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Armor</th>
+                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Frag</th>
+                <th className="px-3 py-2 text-right text-xs font-semibold uppercase tracking-wider text-text-muted">Speed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {grouped.flatMap(([, rounds]) =>
+                rounds.map((round) => (
+                  <tr
+                    key={round.id}
+                    className="border-b border-border/50 hover:bg-bg-secondary/50 transition-colors"
+                  >
+                    <td className="px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <img
+                          src={round.iconLink}
+                          alt={round.shortName}
+                          className="h-6 w-6 object-contain rounded bg-bg-tertiary p-0.5"
+                          loading="lazy"
+                        />
+                        <span className="font-medium text-text-primary">{round.shortName}</span>
+                        {round.tracer && <span className="text-xs text-warning">T</span>}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2 text-text-secondary text-xs">{formatCaliber(round.caliber)}</td>
+                    <td className="px-3 py-2 text-right font-mono text-text-primary">{round.damage}</td>
+                    <td className="px-3 py-2 text-right font-mono text-text-primary">{round.penetrationPower}</td>
+                    <td className="px-3 py-2 text-right font-mono text-text-secondary">{round.armorDamage}</td>
+                    <td className="px-3 py-2 text-right font-mono text-text-secondary">{(round.fragmentationChance * 100).toFixed(0)}%</td>
+                    <td className="px-3 py-2 text-right font-mono text-text-muted">{round.initialSpeed}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

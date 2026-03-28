@@ -4,7 +4,7 @@ import { useTheme } from "../theme/ThemeProvider";
 import { moduleRegistry } from "../plugins/registry";
 import { showToast } from "@/shared/ui/Toast";
 
-const APP_VERSION = "0.1.5";
+const APP_VERSION = "0.1.6";
 
 function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
@@ -120,7 +120,11 @@ function SettingsPage() {
                   className="flex items-center justify-between rounded-lg bg-bg-secondary p-4"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{mod.icon}</span>
+                    {typeof mod.icon === "string" ? (
+                      <span className="text-xl">{mod.icon}</span>
+                    ) : (
+                      <img src={mod.icon.src} alt={mod.icon.alt} className="h-6 w-6 object-contain" />
+                    )}
                     <div>
                       <p className="text-sm text-text-primary">{mod.name}</p>
                       <p className="text-xs text-text-muted">v{mod.version}</p>
