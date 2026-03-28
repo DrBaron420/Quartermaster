@@ -28,13 +28,37 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["nsis"],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "publisher": "Alexei Rosetti",
+    "copyright": "© 2026 Alexei Rosetti",
+    "category": "Utility",
+    "shortDescription": "Modular gaming toolkit hub",
+    "longDescription": "An offline-first, modular gaming companion app that keeps your game data at your fingertips.",
+    "createUpdaterArtifacts": true,
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "installMode": "both",
+        "languages": ["English"],
+        "displayLanguageSelector": false,
+        "startMenuFolder": "Quartermaster"
+      }
+    }
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDY1OEJGRkI0NDhFMTk5NzYKUldSMm1lRkl0UCtMWmRmV1JlYjNHL3B1UUdCcW84bHk5U2Z0ZDZRbFFkczBCYmY3ZnRoaWVkT0QK",
+      "endpoints": [
+        "https://github.com/DrBaron420/Quartermaster/releases/latest/download/latest.json"
+      ],
+      "dialog": true
+    }
   }
 }

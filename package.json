@@ -15,6 +15,7 @@
   "dependencies": {
     "@tauri-apps/api": "^2.10.1",
     "@tauri-apps/plugin-shell": "^2.3.5",
+    "@tauri-apps/plugin-updater": "^2.10.0",
     "dexie": "^4.4.1",
     "dexie-react-hooks": "^4.4.0",
     "graphql": "^16.13.2",

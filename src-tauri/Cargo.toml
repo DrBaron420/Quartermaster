@@ -1,10 +1,10 @@
 [package]
 name = "app"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+description = "Modular gaming toolkit hub"
+authors = ["Alexei Rosetti"]
+license = "MIT"
+repository = "https://github.com/DrBaron420/Quartermaster"
 edition = "2021"
 rust-version = "1.77.2"
 
@@ -24,3 +24,4 @@ log = "0.4"
 tauri = { version = "2.10.3", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-updater = "2"
