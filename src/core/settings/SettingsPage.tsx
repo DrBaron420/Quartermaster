@@ -1,6 +1,10 @@
+import { useState } from "react";
 import { useSettingsStore } from "./settingsStore";
 import { useTheme } from "../theme/ThemeProvider";
 import { moduleRegistry } from "../plugins/registry";
+import { showToast } from "@/shared/ui/Toast";
+
+const APP_VERSION = "0.1.3";
 
 function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
@@ -8,6 +12,50 @@ function SettingsPage() {
   const setSyncInterval = useSettingsStore((s) => s.setSyncInterval);
   const enabledModules = useSettingsStore((s) => s.enabledModules);
   const toggleModule = useSettingsStore((s) => s.toggleModule);
+  const [updateStatus, setUpdateStatus] = useState<"idle" | "checking" | "downloading" | "up-to-date">("idle");
+
+  const checkForUpdates = async () => {
+    if (!("__TAURI__" in window)) {
+      showToast("Update check only works in the desktop app", "warning");
+      return;
+    }
+
+    setUpdateStatus("checking");
+    try {
+      const { check } = await import("@tauri-apps/plugin-updater");
+      const update = await check();
+
+      if (update) {
+        setUpdateStatus("downloading");
+        showToast(`Update v${update.version} found! Downloading...`, "info", 5000);
+
+        await update.downloadAndInstall((event) => {
+          if (event.event === "Started" && event.data.contentLength) {
+            console.log(`[Updater] Downloading ${(event.data.contentLength / 1024 / 1024).toFixed(1)}MB`);
+          }
+        });
+
+        showToast("Update installed! Restarting...", "success", 3000);
+        const { relaunch } = await import("@tauri-apps/plugin-process");
+        setTimeout(() => relaunch(), 2000);
+      } else {
+        setUpdateStatus("up-to-date");
+        showToast("You're on the latest version!", "success");
+        setTimeout(() => setUpdateStatus("idle"), 3000);
+      }
+    } catch (err) {
+      console.error("[Updater] Check failed:", err);
+      setUpdateStatus("idle");
+      showToast("Update check failed. Check your internet connection.", "error");
+    }
+  };
+
+  const updateButtonLabel = {
+    idle: "Check for Updates",
+    checking: "Checking...",
+    downloading: "Downloading...",
+    "up-to-date": "Up to Date ✓",
+  }[updateStatus];
 
   return (
     <div className="max-w-2xl">
@@ -54,7 +102,7 @@ function SettingsPage() {
       </section>
 
       {/* Modules */}
-      <section>
+      <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3 text-text-primary">Modules</h2>
         {moduleRegistry.length === 0 ? (
           <div className="rounded-lg bg-bg-secondary p-4">
@@ -93,6 +141,30 @@ function SettingsPage() {
             })}
           </div>
         )}
+      </section>
+
+      {/* About & Updates */}
+      <section>
+        <h2 className="text-lg font-semibold mb-3 text-text-primary">About</h2>
+        <div className="rounded-lg bg-bg-secondary p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-text-primary">Quartermaster</p>
+              <p className="text-xs text-text-muted">v{APP_VERSION} — TE (Testing)</p>
+            </div>
+            <button
+              onClick={checkForUpdates}
+              disabled={updateStatus === "checking" || updateStatus === "downloading"}
+              className={`rounded-md px-4 py-2 text-sm transition-colors ${
+                updateStatus === "up-to-date"
+                  ? "bg-success/20 text-success"
+                  : "bg-bg-tertiary text-text-secondary hover:bg-bg-hover"
+              } disabled:opacity-50 disabled:cursor-not-allowed`}
+            >
+              {updateButtonLabel}
+            </button>
+          </div>
+        </div>
       </section>
     </div>
   );
