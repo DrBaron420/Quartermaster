@@ -30,7 +30,7 @@ function Titlebar() {
           data-tauri-drag-region
           className="text-[10px] text-text-muted/50 ml-1"
         >
-          v0.1.5 TE
+          v0.1.6 TE
         </span>
       </div>
 

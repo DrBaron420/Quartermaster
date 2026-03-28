@@ -34,7 +34,8 @@
       "Bash(gh release:*)",
       "Bash(gh api:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:v2.tauri.app)"
+      "WebFetch(domain:v2.tauri.app)",
+      "Bash(grep '\"\"version\"\"' package.json src-tauri/tauri.conf.json)"
     ]
   }
 }
