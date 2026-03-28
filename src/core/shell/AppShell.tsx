@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar";
 import Titlebar from "./Titlebar";
 import { useSync } from "@/shared/hooks/useSync";
+import { useUpdater } from "@/shared/hooks/useUpdater";
 import { ToastContainer } from "@/shared/ui/Toast";
 
 interface AppShellProps {
@@ -8,8 +9,9 @@ interface AppShellProps {
 }
 
 function AppShell({ children }: AppShellProps) {
-  // Initialize sync engine on app startup
+  // Initialize sync engine and check for updates on startup
   useSync();
+  useUpdater();
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">

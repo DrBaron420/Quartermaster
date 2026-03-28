@@ -1,6 +1,6 @@
 {
   "name": "quartermaster",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Modular gaming toolkit hub",
   "author": "Alexei Rosetti",
   "license": "MIT",
@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2.10.1",
+    "@tauri-apps/plugin-process": "^2.3.1",
     "@tauri-apps/plugin-shell": "^2.3.5",
     "@tauri-apps/plugin-updater": "^2.10.0",
     "dexie": "^4.4.1",

@@ -31,7 +31,10 @@
       "Bash(W:/node.js/node.exe -e \"const s = require\\(''s:/AI-Project/MySpace/projects/Quartermaster/node_modules/@tauri-apps/cli/config.schema.json''\\); const b = s.definitions?.BundleConfig || s.definitions?.BundleSettings; console.log\\(''createUpdaterArtifacts:'', JSON.stringify\\(b.properties.createUpdaterArtifacts, null, 2\\)\\); const w = b.properties.windows; if\\(w\\) console.log\\(''windows ref:'', JSON.stringify\\(w, null, 2\\)\\);\")",
       "Bash(W:/node.js/node.exe -e \"const s = require\\(''s:/AI-Project/MySpace/projects/Quartermaster/node_modules/@tauri-apps/cli/config.schema.json''\\); console.log\\(''Updater:'', JSON.stringify\\(s.definitions.Updater, null, 2\\)\\); console.log\\(''---''\\); const nsis = s.definitions.NsisConfig; if\\(nsis\\) console.log\\(''NsisConfig keys:'', Object.keys\\(nsis.properties\\).join\\('', ''\\)\\);\")",
       "Bash(gh run:*)",
-      "Bash(gh release:*)"
+      "Bash(gh release:*)",
+      "Bash(gh api:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:v2.tauri.app)"
     ]
   }
 }
