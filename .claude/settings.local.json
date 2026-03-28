@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "Bash(find /s/AI-Project/ComfUI/akshoai/src/app -maxdepth 2 -type f -name *.ts*)",
+      "Bash(find s:/AI-Project/ComfUI/akshoai -maxdepth 3 -name *.md -type f)",
+      "Bash(rustc --version)",
+      "Bash(cargo --version)",
+      "Bash(npm --version)",
+      "Bash(cmd.exe /c \"node --version && npm --version\")",
+      "Bash(where.exe node:*)",
+      "Bash(where.exe npm:*)",
+      "Bash(where.exe rustc:*)",
+      "Bash(W:/node.js/node.exe --version)",
+      "Bash(W:/node.js/npm.cmd --version)",
+      "Bash(W:/node.js/npm.cmd create:*)",
+      "Bash(W:/node.js/npm.cmd init:*)",
+      "Bash(W:/node.js/npm.cmd install:*)",
+      "Bash(W:/node.js/npx.cmd tauri:*)",
+      "Bash(W:/node.js/npx.cmd tsc:*)",
+      "Bash(W:/node.js/npx.cmd vite:*)"
+    ]
+  }
+}
