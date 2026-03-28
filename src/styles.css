@@ -2,40 +2,35 @@
 
 /* ============================================
    Quartermaster Design Tokens
-   Dark theme by default
+   Dark theme by default, light theme via [data-theme="light"]
    ============================================ */
 
 @theme {
-  /* Background colors - dark slate palette */
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-hover: #475569;
+  /* These get overridden by CSS custom properties below */
+  --color-bg-primary: var(--qm-bg-primary);
+  --color-bg-secondary: var(--qm-bg-secondary);
+  --color-bg-tertiary: var(--qm-bg-tertiary);
+  --color-bg-hover: var(--qm-bg-hover);
 
-  /* Text colors */
-  --color-text-primary: #e2e8f0;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
+  --color-text-primary: var(--qm-text-primary);
+  --color-text-secondary: var(--qm-text-secondary);
+  --color-text-muted: var(--qm-text-muted);
 
-  /* Accent colors */
   --color-accent: #3b82f6;
   --color-accent-hover: #2563eb;
-  --color-accent-soft: #1e3a5f;
+  --color-accent-soft: var(--qm-accent-soft);
 
-  /* Status colors */
   --color-success: #22c55e;
   --color-warning: #f59e0b;
   --color-error: #ef4444;
   --color-info: #06b6d4;
 
-  /* Border colors */
-  --color-border: #334155;
-  --color-border-hover: #475569;
+  --color-border: var(--qm-border);
+  --color-border-hover: var(--qm-border-hover);
 
-  /* Sidebar */
-  --color-sidebar-bg: #0c1322;
-  --color-sidebar-hover: #1e293b;
-  --color-sidebar-active: #1e3a5f;
+  --color-sidebar-bg: var(--qm-sidebar-bg);
+  --color-sidebar-hover: var(--qm-sidebar-hover);
+  --color-sidebar-active: var(--qm-sidebar-active);
 
   /* Spacing */
   --spacing-sidebar-width: 16rem;
@@ -44,6 +39,55 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+}
+
+/* ============================================
+   Dark theme (default)
+   ============================================ */
+
+:root,
+[data-theme="dark"] {
+  --qm-bg-primary: #0f172a;
+  --qm-bg-secondary: #1e293b;
+  --qm-bg-tertiary: #334155;
+  --qm-bg-hover: #475569;
+
+  --qm-text-primary: #e2e8f0;
+  --qm-text-secondary: #94a3b8;
+  --qm-text-muted: #64748b;
+
+  --qm-accent-soft: #1e3a5f;
+
+  --qm-border: #334155;
+  --qm-border-hover: #475569;
+
+  --qm-sidebar-bg: #0c1322;
+  --qm-sidebar-hover: #1e293b;
+  --qm-sidebar-active: #1e3a5f;
+}
+
+/* ============================================
+   Light theme — warm gray, easy on the eyes
+   ============================================ */
+
+[data-theme="light"] {
+  --qm-bg-primary: #f1f5f9;
+  --qm-bg-secondary: #e2e8f0;
+  --qm-bg-tertiary: #cbd5e1;
+  --qm-bg-hover: #94a3b8;
+
+  --qm-text-primary: #1e293b;
+  --qm-text-secondary: #475569;
+  --qm-text-muted: #64748b;
+
+  --qm-accent-soft: #dbeafe;
+
+  --qm-border: #cbd5e1;
+  --qm-border-hover: #94a3b8;
+
+  --qm-sidebar-bg: #e2e8f0;
+  --qm-sidebar-hover: #cbd5e1;
+  --qm-sidebar-active: #bfdbfe;
 }
 
 /* ============================================
@@ -58,8 +102,8 @@ html, body, #root {
 
 body {
   font-family: Inter, system-ui, -apple-system, sans-serif;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-primary);
+  background-color: var(--qm-bg-primary);
+  color: var(--qm-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -76,14 +120,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-primary);
+  background: var(--qm-bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-bg-tertiary);
+  background: var(--qm-bg-tertiary);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-bg-hover);
+  background: var(--qm-bg-hover);
 }

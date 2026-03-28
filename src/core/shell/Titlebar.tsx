@@ -8,11 +8,10 @@ function Titlebar() {
         data-tauri-drag-region
         className="text-xs font-medium text-text-muted"
       >
-        Quartermaster
+        Quartermaster v0.1.1
       </span>
 
-      {/* Window controls are handled natively by Tauri on Windows */}
-      <div />
+      <span className="text-xs text-text-muted">TE — Testing</span>
     </div>
   );
 }

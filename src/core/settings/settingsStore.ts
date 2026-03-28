@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 interface SettingsState {
   /** IDs of enabled game modules */
@@ -20,19 +21,27 @@ interface SettingsState {
   setSyncInterval: (minutes: number) => void;
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
-  enabledModules: [],
-  theme: "dark",
-  syncIntervalMinutes: 15,
+export const useSettingsStore = create<SettingsState>()(
+  persist(
+    (set) => ({
+      enabledModules: [],
+      theme: "dark",
+      syncIntervalMinutes: 15,
 
-  toggleModule: (moduleId) =>
-    set((state) => ({
-      enabledModules: state.enabledModules.includes(moduleId)
-        ? state.enabledModules.filter((id) => id !== moduleId)
-        : [...state.enabledModules, moduleId],
-    })),
+      toggleModule: (moduleId) =>
+        set((state) => ({
+          enabledModules: state.enabledModules.includes(moduleId)
+            ? state.enabledModules.filter((id) => id !== moduleId)
+            : [...state.enabledModules, moduleId],
+        })),
 
-  setTheme: (theme) => set({ theme }),
+      setTheme: (theme) => set({ theme }),
 
-  setSyncInterval: (minutes) => set({ syncIntervalMinutes: minutes }),
-}));
+      setSyncInterval: (minutes) => set({ syncIntervalMinutes: minutes }),
+    }),
+    {
+      name: "quartermaster-settings",
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
