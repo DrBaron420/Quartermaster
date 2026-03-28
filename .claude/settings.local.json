@@ -18,7 +18,12 @@
       "Bash(W:/node.js/npm.cmd install:*)",
       "Bash(W:/node.js/npx.cmd tauri:*)",
       "Bash(W:/node.js/npx.cmd tsc:*)",
-      "Bash(W:/node.js/npx.cmd vite:*)"
+      "Bash(W:/node.js/npx.cmd vite:*)",
+      "WebFetch(domain:tarkov.dev)",
+      "WebFetch(domain:api.tarkov.dev)",
+      "Bash(curl -s -X POST https://api.tarkov.dev/graphql -H \"Content-Type: application/json\" -d '{\"\"\"\"query\"\"\"\":\"\"\"\"{ __schema { queryType { fields { name description } } } }\"\"\"\"}')",
+      "Bash(curl.exe -s -X POST https://api.tarkov.dev/graphql -H \"Content-Type: application/json\" -d \"{\"\"query\"\":\"\"{ __schema { queryType { fields { name description } } } }\"\"}\")",
+      "Bash(W:/node.js/node.exe -e \":*)"
     ]
   }
 }
