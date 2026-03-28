@@ -9,12 +9,20 @@ import { showToast } from "../ui/Toast";
 export function useUpdater() {
   useEffect(() => {
     // Skip in browser dev mode
-    if (!("__TAURI__" in window)) return;
+    if (!("__TAURI__" in window)) {
+      console.log("[Updater] Not in Tauri, skipping update check");
+      return;
+    }
 
     const checkForUpdate = async () => {
+      console.log("[Updater] Starting update check...");
+      showToast("Checking for updates...", "info", 2000);
+
       try {
         const { check } = await import("@tauri-apps/plugin-updater");
+        console.log("[Updater] Plugin loaded, calling check()...");
         const update = await check();
+        console.log("[Updater] Check result:", update);
 
         if (update) {
           console.log(`[Updater] Found update: v${update.version}`);
@@ -34,19 +42,20 @@ export function useUpdater() {
 
           showToast("Update installed! Restarting...", "success", 3000);
 
-          // Relaunch after a brief delay so the user sees the toast
           const { relaunch } = await import("@tauri-apps/plugin-process");
           setTimeout(() => relaunch(), 2000);
         } else {
           console.log("[Updater] App is up to date");
+          showToast("App is up to date", "success", 2000);
         }
       } catch (err) {
-        console.error("[Updater] Check failed:", err);
-        // Don't show error toast — update check failures are silent
+        const message = err instanceof Error ? err.message : String(err);
+        console.error("[Updater] Check failed:", message);
+        showToast(`Update check failed: ${message}`, "error", 6000);
       }
     };
 
-    // Delay the check slightly so the app loads first
+    // Delay the check so the app loads first
     const timer = setTimeout(checkForUpdate, 3000);
     return () => clearTimeout(timer);
   }, []);

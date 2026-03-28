@@ -4,7 +4,7 @@ import { useTheme } from "../theme/ThemeProvider";
 import { moduleRegistry } from "../plugins/registry";
 import { showToast } from "@/shared/ui/Toast";
 
-const APP_VERSION = "0.1.3";
+const APP_VERSION = "0.1.4";
 
 function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
