@@ -3,6 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { tarkovDb } from "../data/tarkovDb";
 import SearchInput from "@/shared/ui/SearchInput";
 import SortableTable, { type Column } from "@/shared/ui/SortableTable";
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import type { TarkovAmmo } from "../types/ammo";
 
 /** Clean up caliber strings from API (e.g. "Caliber556x45NATO" → "5.56x45mm") */
@@ -33,7 +34,9 @@ function AmmoPage() {
   const [search, setSearch] = useState("");
   const [caliberFilter, setCaliberFilter] = useState<string>("all");
 
-  const allAmmo = useLiveQuery(() => tarkovDb.ammo.toArray()) ?? [];
+  const queryResult = useLiveQuery(() => tarkovDb.ammo.toArray());
+  const isLoading = queryResult === undefined;
+  const allAmmo = queryResult ?? [];
 
   // Get unique calibers
   const calibers = useMemo(() => {
@@ -155,6 +158,17 @@ function AmmoPage() {
       ),
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold mb-6">Ammo Reference</h1>
+        <div className="flex justify-center py-12">
+          <LoadingSpinner label="Loading ammo data..." />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

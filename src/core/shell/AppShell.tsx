@@ -1,6 +1,7 @@
 import Sidebar from "./Sidebar";
 import Titlebar from "./Titlebar";
 import { useSync } from "@/shared/hooks/useSync";
+import { ToastContainer } from "@/shared/ui/Toast";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -19,6 +20,7 @@ function AppShell({ children }: AppShellProps) {
           {children}
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { db } from "../db/dexieInstance";
 import { getSqlite, initSqliteSchema, getSetting, setSetting } from "../db/sqliteBridge";
+import { showToast } from "../ui/Toast";
 
 export type SyncStatus = "idle" | "syncing" | "error" | "offline";
 
@@ -106,12 +107,12 @@ class SyncManager {
       const now = Date.now();
       this.updateState({ status: "idle", lastSyncedAt: now });
       await setSetting("lastSyncedAt", now.toString());
+      showToast("Data synced successfully", "success");
     } catch (err) {
       console.error("[Sync] Error:", err);
-      this.updateState({
-        status: "error",
-        error: err instanceof Error ? err.message : "Sync failed",
-      });
+      const message = err instanceof Error ? err.message : "Sync failed";
+      this.updateState({ status: "error", error: message });
+      showToast(`Sync failed: ${message}. Using cached data.`, "error", 6000);
     }
   }
 

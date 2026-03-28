@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { tarkovDb } from "../data/tarkovDb";
 import SearchInput from "@/shared/ui/SearchInput";
+import { SkeletonList } from "@/shared/ui/Skeleton";
 import type { TarkovItem } from "../types/items";
 
 /** Get the best sell price in RUB */
@@ -33,7 +34,9 @@ function ItemsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [page, setPage] = useState(0);
 
-  const allItems = useLiveQuery(() => tarkovDb.items.toArray()) ?? [];
+  const queryResult = useLiveQuery(() => tarkovDb.items.toArray());
+  const isLoading = queryResult === undefined;
+  const allItems = queryResult ?? [];
 
   // Get unique categories for the filter dropdown
   const categories = useMemo(() => {
@@ -81,6 +84,15 @@ function ItemsPage() {
     setCategoryFilter(value);
     setPage(0);
   };
+
+  if (isLoading) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold mb-6">Items Database</h1>
+        <SkeletonList count={10} />
+      </div>
+    );
+  }
 
   return (
     <div>
