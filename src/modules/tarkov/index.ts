@@ -6,7 +6,10 @@ import {
   hydrateTarkovFromSqlite,
   syncTarkovData,
 } from "./data/tarkovSync";
+import TarkovLayout from "./components/TarkovLayout";
 import TarkovDashboard from "./TarkovDashboard";
+import ItemsPage from "./pages/ItemsPage";
+import AmmoPage from "./pages/AmmoPage";
 
 const tarkovModule: GameModule = {
   id: "tarkov",
@@ -14,11 +17,23 @@ const tarkovModule: GameModule = {
   version: "0.1.0",
   icon: "🎯",
 
+  layout: createElement(TarkovLayout),
+
   routes: [
     {
       path: "",
       label: "Dashboard",
       element: createElement(TarkovDashboard),
+    },
+    {
+      path: "items",
+      label: "Items",
+      element: createElement(ItemsPage),
+    },
+    {
+      path: "ammo",
+      label: "Ammo",
+      element: createElement(AmmoPage),
     },
   ],
 

@@ -21,6 +21,9 @@ export interface GameModule {
   /** Emoji or icon string for the sidebar (will be a component later) */
   icon: string;
 
+  /** Optional layout wrapper with <Outlet /> for sub-navigation */
+  layout?: React.ReactNode;
+
   /** Pages this module adds to the app */
   routes: RouteConfig[];
 
