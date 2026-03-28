@@ -1,11 +1,15 @@
 import Sidebar from "./Sidebar";
 import Titlebar from "./Titlebar";
+import { useSync } from "@/shared/hooks/useSync";
 
 interface AppShellProps {
   children: React.ReactNode;
 }
 
 function AppShell({ children }: AppShellProps) {
+  // Initialize sync engine on app startup
+  useSync();
+
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Titlebar />

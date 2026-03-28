@@ -1,8 +1,19 @@
-const navItems = [
-  { id: "home", label: "Home", icon: "🏠" },
-];
+import { useNavigate, useLocation } from "react-router-dom";
+import { useSettingsStore } from "../settings/settingsStore";
+import SyncStatusBadge from "@/shared/sync/SyncStatus";
+import { moduleRegistry } from "../plugins/registry";
 
 function Sidebar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const enabledModuleIds = useSettingsStore((s) => s.enabledModules);
+
+  const enabledModules = moduleRegistry.filter((mod) =>
+    enabledModuleIds.includes(mod.id)
+  );
+
+  const isActive = (path: string) => location.pathname === path;
+
   return (
     <aside className="flex w-sidebar-width flex-col bg-sidebar-bg border-r border-border">
       {/* Logo / App title */}
@@ -12,38 +23,70 @@ function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 px-2 py-3">
-        {navItems.map((item) => (
-          <button
-            key={item.id}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm
-                       text-text-secondary hover:bg-sidebar-hover hover:text-text-primary
-                       transition-colors"
-          >
-            <span>{item.icon}</span>
-            <span>{item.label}</span>
-          </button>
-        ))}
+      <nav className="flex-1 px-2 py-3 overflow-y-auto">
+        <button
+          onClick={() => navigate("/")}
+          className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm
+                     transition-colors ${
+                       isActive("/")
+                         ? "bg-sidebar-active text-text-primary"
+                         : "text-text-secondary hover:bg-sidebar-hover hover:text-text-primary"
+                     }`}
+        >
+          <span>🏠</span>
+          <span>Home</span>
+        </button>
 
-        {/* Module section header */}
+        <button
+          onClick={() => navigate("/settings")}
+          className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm
+                     transition-colors ${
+                       isActive("/settings")
+                         ? "bg-sidebar-active text-text-primary"
+                         : "text-text-secondary hover:bg-sidebar-hover hover:text-text-primary"
+                     }`}
+        >
+          <span>⚙️</span>
+          <span>Settings</span>
+        </button>
+
+        {/* Module section */}
         <div className="mt-6 mb-2 px-3">
           <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">
             Modules
           </span>
         </div>
 
-        {/* Placeholder for game modules — will be dynamic later */}
-        <div className="px-3 py-2 text-sm text-text-muted italic">
-          No modules enabled
-        </div>
+        {enabledModules.length === 0 ? (
+          <div className="px-3 py-2 text-sm text-text-muted italic">
+            No modules enabled
+          </div>
+        ) : (
+          enabledModules.map((mod) => {
+            const modulePath = `/modules/${mod.id}`;
+            const active = location.pathname.startsWith(modulePath);
+            return (
+              <button
+                key={mod.id}
+                onClick={() => navigate(modulePath)}
+                className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm
+                           transition-colors ${
+                             active
+                               ? "bg-sidebar-active text-text-primary"
+                               : "text-text-secondary hover:bg-sidebar-hover hover:text-text-primary"
+                           }`}
+              >
+                <span>{mod.icon}</span>
+                <span>{mod.name}</span>
+              </button>
+            );
+          })
+        )}
       </nav>
 
-      {/* Bottom section: status + settings */}
+      {/* Bottom section: sync status */}
       <div className="border-t border-border px-3 py-3">
-        <div className="flex items-center gap-2 text-xs text-text-muted">
-          <span className="h-2 w-2 rounded-full bg-success" />
-          <span>Online</span>
-        </div>
+        <SyncStatusBadge />
       </div>
     </aside>
   );

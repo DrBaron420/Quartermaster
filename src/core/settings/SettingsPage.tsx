@@ -1,10 +1,13 @@
 import { useSettingsStore } from "./settingsStore";
 import { useTheme } from "../theme/ThemeProvider";
+import { moduleRegistry } from "../plugins/registry";
 
 function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
   const syncInterval = useSettingsStore((s) => s.syncIntervalMinutes);
   const setSyncInterval = useSettingsStore((s) => s.setSyncInterval);
+  const enabledModules = useSettingsStore((s) => s.enabledModules);
+  const toggleModule = useSettingsStore((s) => s.toggleModule);
 
   return (
     <div className="max-w-2xl">
@@ -50,14 +53,46 @@ function SettingsPage() {
         </div>
       </section>
 
-      {/* Modules - placeholder */}
+      {/* Modules */}
       <section>
         <h2 className="text-lg font-semibold mb-3 text-text-primary">Modules</h2>
-        <div className="rounded-lg bg-bg-secondary p-4">
-          <p className="text-sm text-text-muted italic">
-            No game modules available yet. Coming soon!
-          </p>
-        </div>
+        {moduleRegistry.length === 0 ? (
+          <div className="rounded-lg bg-bg-secondary p-4">
+            <p className="text-sm text-text-muted italic">
+              No game modules available yet. The Tarkov module is coming first!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {moduleRegistry.map((mod) => {
+              const isEnabled = enabledModules.includes(mod.id);
+              return (
+                <div
+                  key={mod.id}
+                  className="flex items-center justify-between rounded-lg bg-bg-secondary p-4"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{mod.icon}</span>
+                    <div>
+                      <p className="text-sm text-text-primary">{mod.name}</p>
+                      <p className="text-xs text-text-muted">v{mod.version}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleModule(mod.id)}
+                    className={`rounded-md px-4 py-2 text-sm transition-colors ${
+                      isEnabled
+                        ? "bg-accent text-white hover:bg-accent-hover"
+                        : "bg-bg-tertiary text-text-secondary hover:bg-bg-hover"
+                    }`}
+                  >
+                    {isEnabled ? "Enabled" : "Disabled"}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
     </div>
   );
