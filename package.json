@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Modular gaming toolkit hub",
   "author": "Alexei Rosetti",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "type": "module",
   "scripts": {
     "dev": "vite",

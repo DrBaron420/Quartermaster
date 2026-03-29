@@ -29,4 +29,5 @@ Requires Node.js 20+ and Rust toolchain.
 
 ## License
 
-MIT
+All Rights Reserved. See [LICENSE](LICENSE) for details.
+The compiled application is free to download and use. The source code may not be copied, modified, or redistributed.
