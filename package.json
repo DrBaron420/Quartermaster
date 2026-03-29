@@ -1,6 +1,6 @@
 {
   "name": "quartermaster",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "Modular gaming toolkit hub",
   "author": "Alexei Rosetti",
   "license": "MIT",
@@ -33,6 +33,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "sharp": "^0.34.5",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",
     "vite": "^8.0.3"

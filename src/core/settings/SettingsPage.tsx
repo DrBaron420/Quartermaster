@@ -2,9 +2,10 @@ import { useState } from "react";
 import { useSettingsStore } from "./settingsStore";
 import { useTheme } from "../theme/ThemeProvider";
 import { moduleRegistry } from "../plugins/registry";
+import { syncManager } from "@/shared/sync/SyncManager";
 import { showToast } from "@/shared/ui/Toast";
 
-const APP_VERSION = "0.1.6";
+const APP_VERSION = "0.2.0";
 
 function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
@@ -82,6 +83,22 @@ function SettingsPage() {
       {/* Sync */}
       <section className="mb-8">
         <h2 className="text-lg font-semibold mb-3 text-text-primary">Data Sync</h2>
+        <div className="flex items-center justify-between rounded-lg bg-bg-secondary p-4 mb-2">
+          <div>
+            <p className="text-sm text-text-primary">Sync Now</p>
+            <p className="text-xs text-text-muted">Manually refresh all module data</p>
+          </div>
+          <button
+            onClick={() => {
+              syncManager.sync();
+              showToast("Syncing...", "info", 2000);
+            }}
+            className="rounded-md bg-bg-tertiary px-4 py-2 text-sm text-text-primary
+                       hover:bg-bg-hover transition-colors"
+          >
+            Sync
+          </button>
+        </div>
         <div className="flex items-center justify-between rounded-lg bg-bg-secondary p-4">
           <div>
             <p className="text-sm text-text-primary">Sync interval</p>
@@ -130,16 +147,28 @@ function SettingsPage() {
                       <p className="text-xs text-text-muted">v{mod.version}</p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => toggleModule(mod.id)}
-                    className={`rounded-md px-4 py-2 text-sm transition-colors ${
-                      isEnabled
-                        ? "bg-accent text-white hover:bg-accent-hover"
-                        : "bg-bg-tertiary text-text-secondary hover:bg-bg-hover"
-                    }`}
-                  >
-                    {isEnabled ? "Enabled" : "Disabled"}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        syncManager.sync();
+                        showToast(`Syncing ${mod.name}...`, "info", 2000);
+                      }}
+                      className="rounded-md bg-bg-tertiary px-3 py-2 text-sm text-text-muted
+                                 hover:bg-bg-hover hover:text-text-primary transition-colors"
+                    >
+                      Sync
+                    </button>
+                    <button
+                      onClick={() => toggleModule(mod.id)}
+                      className={`rounded-md px-4 py-2 text-sm transition-colors ${
+                        isEnabled
+                          ? "bg-accent text-white hover:bg-accent-hover"
+                          : "bg-bg-tertiary text-text-secondary hover:bg-bg-hover"
+                      }`}
+                    >
+                      {isEnabled ? "Enabled" : "Disabled"}
+                    </button>
+                  </div>
                 </div>
               );
             })}

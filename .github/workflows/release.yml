@@ -44,12 +44,13 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "Quartermaster ${{ github.ref_name }}"
+          releaseName: "Version ${{ github.ref_name }}"
           releaseBody: |
-            See the [full changelog](https://github.com/DrBaron420/Quartermaster/commits/${{ github.ref_name }}).
+            ## What's New
+            See the [full changelog](https://github.com/DrBaron420/Quartermaster/compare/main...HEAD) for details.
 
             ## Install
-            Download `Quartermaster_*_x64-setup.exe` below and run it.
+            Download **Quartermaster_x64-setup.exe** below and run it.
             Existing installations will be prompted to update automatically.
           releaseDraft: false
           prerelease: false

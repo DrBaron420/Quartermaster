@@ -5,19 +5,22 @@ import { useTarkovStore } from "../stores/tarkovStore";
 import SearchInput from "@/shared/ui/SearchInput";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import ExternalLink from "@/shared/ui/ExternalLink";
+import { getTaskStatus, type TaskStatus } from "../utils/taskStatus";
 import type { TarkovTask } from "../types/tasks";
 
-type FilterMode = "all" | "active" | "completed";
+type FilterMode = "all" | "available" | "completed" | "locked";
 
 function TasksPage() {
   const [search, setSearch] = useState("");
   const [traderFilter, setTraderFilter] = useState("All");
-  const [filterMode, setFilterMode] = useState<FilterMode>("all");
+  const [filterMode, setFilterMode] = useState<FilterMode>("available");
 
   const completedTasks = useTarkovStore((s) => s.completedTasks);
   const completedObjectives = useTarkovStore((s) => s.completedObjectives);
   const toggleTask = useTarkovStore((s) => s.toggleTask);
   const toggleObjective = useTarkovStore((s) => s.toggleObjective);
+  const playerLevel = useTarkovStore((s) => s.playerLevel);
+  const setPlayerLevel = useTarkovStore((s) => s.setPlayerLevel);
 
   const queryResult = useLiveQuery(() => tarkovDb.tasks.toArray());
   const isLoading = queryResult === undefined;
@@ -46,23 +49,26 @@ function TasksPage() {
       result = result.filter((t) => t.trader === traderFilter);
     }
 
-    if (filterMode === "completed") {
-      result = result.filter((t) => completedTasks.includes(t.id));
-    } else if (filterMode === "active") {
-      result = result.filter((t) => !completedTasks.includes(t.id));
+    if (filterMode !== "all") {
+      result = result.filter((t) => {
+        const status = getTaskStatus(t, completedTasks, playerLevel);
+        return status === filterMode;
+      });
     }
 
-    // Sort: incomplete first, then by level, then name
+    // Sort: available first, then locked, then completed. Within each group: by level, then name
+    const statusOrder: Record<TaskStatus, number> = { available: 0, locked: 1, completed: 2 };
     return result.sort((a, b) => {
-      const aComplete = completedTasks.includes(a.id) ? 1 : 0;
-      const bComplete = completedTasks.includes(b.id) ? 1 : 0;
-      if (aComplete !== bComplete) return aComplete - bComplete;
+      const aStatus = statusOrder[getTaskStatus(a, completedTasks, playerLevel)];
+      const bStatus = statusOrder[getTaskStatus(b, completedTasks, playerLevel)];
+      if (aStatus !== bStatus) return aStatus - bStatus;
       if (a.minPlayerLevel !== b.minPlayerLevel) return a.minPlayerLevel - b.minPlayerLevel;
       return a.name.localeCompare(b.name);
     });
-  }, [allTasks, search, traderFilter, filterMode, completedTasks]);
+  }, [allTasks, search, traderFilter, filterMode, completedTasks, playerLevel]);
 
   const completedCount = allTasks.filter((t) => completedTasks.includes(t.id)).length;
+  const availableCount = allTasks.filter((t) => getTaskStatus(t, completedTasks, playerLevel) === "available").length;
 
   if (isLoading) {
     return (
@@ -79,8 +85,22 @@ function TasksPage() {
     <div>
       <h1 className="text-2xl font-bold mb-2">Task Tracker</h1>
       <p className="text-text-secondary mb-4">
-        {completedCount} / {allTasks.length} completed
+        {completedCount} / {allTasks.length} completed · {availableCount} available
       </p>
+
+      {/* Player level */}
+      <div className="flex items-center gap-3 mb-4">
+        <label className="text-sm text-text-secondary">Player Level:</label>
+        <input
+          type="number"
+          min={1}
+          max={79}
+          value={playerLevel}
+          onChange={(e) => setPlayerLevel(parseInt(e.target.value) || 1)}
+          className="w-16 rounded-md bg-bg-secondary border border-border px-2 py-1
+                     text-sm text-text-primary text-center focus:outline-none focus:border-accent"
+        />
+      </div>
 
       {/* Progress bar */}
       <div className="mb-4 max-w-2xl">
@@ -108,7 +128,7 @@ function TasksPage() {
           ))}
         </select>
         <div className="flex rounded-lg border border-border overflow-hidden">
-          {(["all", "active", "completed"] as FilterMode[]).map((mode) => (
+          {(["all", "available", "completed", "locked"] as FilterMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setFilterMode(mode)}
@@ -137,7 +157,7 @@ function TasksPage() {
             <TaskCard
               key={task.id}
               task={task}
-              isCompleted={completedTasks.includes(task.id)}
+              status={getTaskStatus(task, completedTasks, playerLevel)}
               completedObjectives={completedObjectives}
               onToggleTask={toggleTask}
               onToggleObjective={toggleObjective}
@@ -151,18 +171,20 @@ function TasksPage() {
 
 function TaskCard({
   task,
-  isCompleted,
+  status,
   completedObjectives,
   onToggleTask,
   onToggleObjective,
 }: {
   task: TarkovTask;
-  isCompleted: boolean;
+  status: TaskStatus;
   completedObjectives: string[];
   onToggleTask: (id: string) => void;
   onToggleObjective: (taskId: string, objId: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const isCompleted = status === "completed";
+  const isLocked = status === "locked";
   const objCompleted = task.objectives.filter(
     (o) => completedObjectives.includes(`${task.id}:${o.id}`)
   ).length;
@@ -172,16 +194,21 @@ function TaskCard({
       className={`rounded-lg border p-4 transition-colors ${
         isCompleted
           ? "bg-bg-secondary/50 border-border/50 opacity-60"
+          : isLocked
+          ? "bg-bg-secondary/30 border-border/30 opacity-50"
           : "bg-bg-secondary border-border"
       }`}
     >
       {/* Header */}
       <div className="flex items-start gap-3">
         <button
-          onClick={() => onToggleTask(task.id)}
+          onClick={() => !isLocked && onToggleTask(task.id)}
+          disabled={isLocked}
           className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors ${
             isCompleted
               ? "bg-accent border-accent text-white"
+              : isLocked
+              ? "border-border/50 cursor-not-allowed"
               : "border-border hover:border-accent"
           }`}
         >
@@ -190,13 +217,18 @@ function TaskCard({
               <path d="M10 3L4.5 8.5 2 6" stroke="currentColor" strokeWidth="2" fill="none" />
             </svg>
           )}
+          {isLocked && (
+            <span className="text-[8px] text-text-muted">🔒</span>
+          )}
         </button>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3
               className={`text-sm font-medium ${
-                isCompleted ? "line-through text-text-muted" : "text-text-primary"
+                isCompleted ? "line-through text-text-muted" :
+                isLocked ? "text-text-muted" :
+                "text-text-primary"
               }`}
             >
               {task.name}
@@ -209,6 +241,11 @@ function TaskCard({
                 {task.map}
               </span>
             )}
+            {isLocked && (
+              <span className="rounded-full bg-error/10 px-2 py-0.5 text-[10px] text-error">
+                Locked
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
             <span>Lvl {task.minPlayerLevel}+</span>
@@ -217,12 +254,14 @@ function TaskCard({
           </div>
         </div>
 
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="text-text-muted hover:text-text-primary transition-colors text-sm"
-        >
-          {expanded ? "▲" : "▼"}
-        </button>
+        {!isLocked && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-text-muted hover:text-text-primary transition-colors text-sm"
+          >
+            {expanded ? "▲" : "▼"}
+          </button>
+        )}
       </div>
 
       {/* Objectives (expandable) */}

@@ -4,8 +4,16 @@ import type { Currency } from "../utils/currency";
 import type { TarkovAmmo } from "../types/ammo";
 import type { TarkovTask } from "../types/tasks";
 import type { HideoutStation } from "../types/hideout";
+import type { GameMode } from "../utils/editions";
 
 const client = new GraphQLClient("https://api.tarkov.dev/graphql");
+
+/** Default game mode — overridden by user setting */
+let currentGameMode: GameMode = "regular";
+
+export function setApiGameMode(mode: GameMode) {
+  currentGameMode = mode;
+}
 
 /** Raw API response shapes (differ slightly from our local types) */
 
@@ -106,8 +114,8 @@ function mapAmmo(ammo: ApiAmmo): TarkovAmmo {
 // ── Queries ──────────────────────────────────────────────
 
 const ITEMS_QUERY = gql`
-  query GetItems {
-    items {
+  query GetItems($gameMode: GameMode) {
+    items(gameMode: $gameMode) {
       id
       name
       shortName
@@ -151,8 +159,8 @@ const ITEMS_QUERY = gql`
 `;
 
 const AMMO_QUERY = gql`
-  query GetAmmo {
-    ammo {
+  query GetAmmo($gameMode: GameMode) {
+    ammo(gameMode: $gameMode) {
       item {
         id
         name
@@ -172,8 +180,8 @@ const AMMO_QUERY = gql`
 `;
 
 const TASKS_QUERY = gql`
-  query GetTasks {
-    tasks {
+  query GetTasks($gameMode: GameMode) {
+    tasks(gameMode: $gameMode) {
       id
       name
       trader { name }
@@ -188,8 +196,8 @@ const TASKS_QUERY = gql`
 `;
 
 const HIDEOUT_QUERY = gql`
-  query GetHideout {
-    hideoutStations {
+  query GetHideout($gameMode: GameMode) {
+    hideoutStations(gameMode: $gameMode) {
       id
       name
       levels {
@@ -212,13 +220,13 @@ const HIDEOUT_QUERY = gql`
 
 /** Fetch all items from tarkov.dev */
 export async function fetchItems(): Promise<TarkovItem[]> {
-  const data = await client.request<{ items: ApiItem[] }>(ITEMS_QUERY);
+  const data = await client.request<{ items: ApiItem[] }>(ITEMS_QUERY, { gameMode: currentGameMode });
   return data.items.map(mapItem);
 }
 
 /** Fetch all ammo from tarkov.dev */
 export async function fetchAmmo(): Promise<TarkovAmmo[]> {
-  const data = await client.request<{ ammo: ApiAmmo[] }>(AMMO_QUERY);
+  const data = await client.request<{ ammo: ApiAmmo[] }>(AMMO_QUERY, { gameMode: currentGameMode });
   return data.ammo.map(mapAmmo);
 }
 
@@ -236,7 +244,7 @@ export async function fetchTasks(): Promise<TarkovTask[]> {
     objectives: { id: string; description: string; type: string; optional: boolean }[];
   }
 
-  const data = await client.request<{ tasks: ApiTask[] }>(TASKS_QUERY);
+  const data = await client.request<{ tasks: ApiTask[] }>(TASKS_QUERY, { gameMode: currentGameMode });
   return data.tasks.map((t) => ({
     id: t.id,
     name: t.name,
@@ -268,7 +276,7 @@ export async function fetchHideout(): Promise<HideoutStation[]> {
     }[];
   }
 
-  const data = await client.request<{ hideoutStations: ApiStation[] }>(HIDEOUT_QUERY);
+  const data = await client.request<{ hideoutStations: ApiStation[] }>(HIDEOUT_QUERY, { gameMode: currentGameMode });
   return data.hideoutStations.map((s) => ({
     id: s.id,
     name: s.name,

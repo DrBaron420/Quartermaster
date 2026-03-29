@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Quartermaster",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "identifier": "com.quartermaster.toolkit",
   "build": {
     "frontendDist": "../dist",
@@ -38,13 +38,14 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "publisher": "Alexei Rosetti",
-    "copyright": "© 2026 Alexei Rosetti",
+    "publisher": "Dr. Baron von Evil Satan",
+    "copyright": "© 2026 Dr. Baron von Evil Satan",
     "category": "Utility",
     "shortDescription": "Modular gaming toolkit hub",
     "longDescription": "An offline-first, modular gaming companion app that keeps your game data at your fingertips.",
     "createUpdaterArtifacts": true,
     "windows": {
+      "allowDowngrades": true,
       "nsis": {
         "installerIcon": "icons/icon.ico",
         "installMode": "both",

@@ -1,7 +1,26 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { GameEdition, GameMode } from "../utils/editions";
 
 interface TarkovStoreState {
+  /** Selected game edition */
+  edition: GameEdition;
+
+  /** Selected game mode (PvP or PvE) */
+  gameMode: GameMode;
+
+  /** Player's current level */
+  playerLevel: number;
+
+  /** Set the game edition */
+  setEdition: (edition: GameEdition) => void;
+
+  /** Set the game mode */
+  setGameMode: (mode: GameMode) => void;
+
+  /** Set player level */
+  setPlayerLevel: (level: number) => void;
+
   /** IDs of pinned/favorited items */
   pinnedItems: string[];
 
@@ -42,6 +61,14 @@ interface TarkovStoreState {
 export const useTarkovStore = create<TarkovStoreState>()(
   persist(
     (set, get) => ({
+      edition: "standard",
+      gameMode: "regular",
+      playerLevel: 1,
+
+      setEdition: (edition) => set({ edition }),
+      setGameMode: (mode) => set({ gameMode: mode }),
+      setPlayerLevel: (level) => set({ playerLevel: Math.max(1, Math.min(79, level)) }),
+
       pinnedItems: [],
       pinnedAmmo: [],
       completedTasks: [],
