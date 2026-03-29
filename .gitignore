@@ -7,9 +7,10 @@ dist/
 # Tauri
 src-tauri/target/
 
-# IDE
+# IDE / Dev tools
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 
