@@ -27,5 +27,12 @@ export default defineConfig({
     watch: {
       ignored: ["**/src-tauri/**"],
     },
+    proxy: {
+      "/bitjita-api": {
+        target: "https://bitjita.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/bitjita-api/, "/api"),
+      },
+    },
   },
 });

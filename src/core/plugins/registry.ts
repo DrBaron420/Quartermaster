@@ -1,5 +1,6 @@
 import type { GameModule } from "@/types/module";
 import tarkovModule from "@/modules/tarkov";
+import bitcraftModule from "@/modules/bitcraft";
 
 /**
  * Static registry of all available game modules.
@@ -7,7 +8,5 @@ import tarkovModule from "@/modules/tarkov";
  */
 export const moduleRegistry: GameModule[] = [
   tarkovModule,
-  // Future:
-  // eliteDangerousModule,
-  // starCitizenModule,
+  bitcraftModule,
 ];
